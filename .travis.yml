@@ -17,7 +17,7 @@ dotnet: 5.0.100
 
 branches:
   only:
-  - master
+  - main
 
 script:
   - ./build.sh --verbosity diagnostic
