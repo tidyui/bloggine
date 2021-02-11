@@ -49,14 +49,29 @@ namespace Bloggine.Services
         /// <summary>
         /// Gets the available categories sorted in alphabetical order.
         /// </summary>
-        public string[] Categories =>
-            _posts.Values.Where(p => !string.IsNullOrWhiteSpace(p.Category)).OrderBy(p => p.Category).Select(p => p.Category).Distinct().ToArray();
+        public Taxonomy[] Categories =>
+            _posts.Values.Where(p => !string.IsNullOrWhiteSpace(p.Category))
+                .GroupBy(p => p.Category)
+                .Select(g => new Taxonomy
+                {
+                    Title = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(t => t.Title)
+                .ToArray();
 
         /// <summary>
         /// Gets the available tags sorted in alphabetical order.
         /// </summary>
-        public string[] Tags =>
-            _posts.Values.SelectMany(p => p.Tags).Distinct().OrderBy(t => t).ToArray();
+        public Taxonomy[] Tags =>
+            _posts.Values.SelectMany(p => p.Tags).GroupBy(p => p)
+                .Select(g => new Taxonomy
+                {
+                    Title = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(t => t.Title)
+                .ToArray();
 
         /// <summary>
         /// Default constructor.
@@ -211,6 +226,13 @@ namespace Bloggine.Services
             {
                 _logger?.LogDebug($"Filtering on tag [{ filter.Tag }]");
                 query = query.Where(p => p.Tags.Contains(filter.Tag));
+            }
+
+            // Limit result
+            if (filter.Take.HasValue)
+            {
+                _logger?.LogDebug($"Limiting result to [{ filter.Take }] posts");
+                query = query.Take(filter.Take.Value);
             }
 
             // Return result

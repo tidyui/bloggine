@@ -39,12 +39,12 @@ namespace Bloggine.Services
         /// Gets the available categories sorted in
         /// alphabetical order.
         /// </summary>
-        string[] Categories { get; }
+        Taxonomy[] Categories { get; }
 
         /// <summary>
         /// Gets the available tags sorted in alphabetical order.
         /// </summary>
-        string[] Tags { get; }
+        Taxonomy[] Tags { get; }
 
         /// <summary>
         /// Initializes the content structure from disc.

@@ -34,5 +34,10 @@ namespace Bloggine.Models
         /// Gets/sets the post type filter.
         /// </summary>
         public PostTypeFilter Type { get; set; } = PostTypeFilter.UnPinned;
+
+        /// <summary>
+        /// The maximum amount of posts that should be returned.
+        /// </summary>
+        public int? Take { get; set; }
     }
 }

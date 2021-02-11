@@ -82,6 +82,6 @@ namespace Bloggine.Models
         /// Gets the additional post settings.
         /// </summary>
         /// <value></value>
-        public PostSettings Settings { get; internal set; }
+        public PostSettings Settings { get; internal set; } = new PostSettings();
     }
 }
