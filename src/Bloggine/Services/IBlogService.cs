@@ -52,6 +52,18 @@ namespace Bloggine.Services
         void Init();
 
         /// <summary>
+        /// Reloads the post with the given path.
+        /// </summary>
+        /// <param name="path">The full path</param>
+        void Reload(string path);
+
+        /// <summary>
+        /// Deletes the post with the given path.
+        /// </summary>
+        /// <param name="path">The full path</param>
+        void Delete(string path);
+
+        /// <summary>
         /// Checks if an item exists with the given slug.
         /// </summary>
         /// <param name="slug">The requested slug</param>

@@ -51,5 +51,11 @@ namespace Bloggine
         /// be used. The default value is false.
         /// </summary>
         public bool UseRazorRuntimeCompilation { get; set; } = false;
+
+        /// <summary>
+        /// Gets/sets if the filesystem watcher should be used to
+        /// automatically reload updated files.
+        /// </summary>
+        public bool UseFileSystemWatcher { get; set; } = true;
     }
 }

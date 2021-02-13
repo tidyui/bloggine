@@ -90,6 +90,50 @@ public static class BlogExtensions
             endpoints.MapRazorPages();
         });
 
+        if (config.UseFileSystemWatcher)
+        {
+            var watcher = new FileSystemWatcher()
+            {
+                Path = Path.Combine(env.ContentRootPath, config.DataPath),
+                NotifyFilter = NotifyFilters.LastWrite|NotifyFilters.FileName,
+                Filter = "*.md"
+            };
+
+            watcher.Changed += (source, e) => {
+                try {
+                    var blog = app.ApplicationServices.GetService<IBlogService>();
+                    blog.Reload(e.FullPath);
+                } catch {}
+            };
+            watcher.Created += (source, e) => {
+                try {
+                    var blog = app.ApplicationServices.GetService<IBlogService>();
+                    blog.Reload(e.FullPath);
+                } catch {}
+            };
+            watcher.Deleted += (source, e) => {
+                try {
+                    var blog = app.ApplicationServices.GetService<IBlogService>();
+                    blog.Delete(e.FullPath);
+                } catch {}
+            };
+            watcher.Renamed += OnRenamed;
+
+            // Begin watching.
+            watcher.EnableRaisingEvents = true;
+        }
         return app;
+    }
+
+    private static void OnChanged(object source, FileSystemEventArgs e)
+    {
+        // Specify what is done when a file is changed, created, or deleted.
+        Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
+    }
+
+    private static void OnRenamed(object source, RenamedEventArgs e)
+    {
+        // Specify what is done when a file is renamed.
+        Console.WriteLine($"File: {e.OldFullPath} renamed to {e.FullPath}");
     }
 }

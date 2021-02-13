@@ -28,6 +28,7 @@ namespace Bloggine.Services
     {
         private readonly ILogger _logger;
         private Dictionary<string, PostInfo> _posts = new Dictionary<string, PostInfo>();
+        private readonly IDeserializer _deserializer;
 
         /// <summary>
         /// Gets/sets the settings.
@@ -89,6 +90,11 @@ namespace Bloggine.Services
                 _logger = factory.CreateLogger(typeof(BlogService));
             }
 
+            // Create yaml deserializer
+            _deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
+
             // Load the structure
             Init();
         }
@@ -105,9 +111,6 @@ namespace Bloggine.Services
             _logger?.LogInformation($"Opening data directory [{ Settings.DataPath }]");
             var dir = new DirectoryInfo(Settings.DataPath);
             var files = dir.GetFiles("*.md");
-            var deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
 
             // Set post count
             Count = files.Length;
@@ -115,54 +118,34 @@ namespace Bloggine.Services
             // Scan all files for meta-data
             foreach (var info in files)
             {
-                _logger?.LogInformation($"Reading meta data for file [{ info.Name }]");
+                var post = LoadFile(info);
+                _posts[post.Slug] = post;
+            }
+        }
 
-                using (var sr = new StreamReader(info.OpenRead()))
-                {
-                    var sb = new StringBuilder();
-                    var post = new PostInfo();
-                    var start = 0;
+        /// <summary>
+        /// Reloads the file with the given path.
+        /// </summary>
+        /// <param name="path">The full path</param>
+        public void Reload(string path)
+        {
+            var info = new FileInfo(path);
+            var post = LoadFile(info);
 
-                    if (!sr.EndOfStream && sr.Peek() == '-')
-                    {
-                        sr.ReadLine();
-                        start++;
+            _posts[post.Slug] = post;
+        }
 
-                        while (!sr.EndOfStream)
-                        {
-                            start++;
-                            var line = sr.ReadLine();
+        /// <summary>
+        /// Deletes the post with the given path.
+        /// </summary>
+        /// <param name="path">The full path</param>
+        public void Delete(string path)
+        {
+            var post = _posts.Values.FirstOrDefault(p => p.Settings.Path == path);
 
-                            if (line.StartsWith("---")) break;
-
-                            sb.AppendLine(line);
-                        }
-                        post = deserializer.Deserialize<PostInfo>(sb.ToString());
-                        post.Settings = deserializer.Deserialize<PostSettings>(sb.ToString());
-                    }
-
-                    // Ensure title
-                    if (string.IsNullOrWhiteSpace(post.Title))
-                        post.Title = GenerateTitle(info.FullName);
-                    // Ensure slug
-                    if (string.IsNullOrWhiteSpace(post.Slug))
-                        post.Slug = BlogUtils.GenerateSlug(post.Title);
-                    // Ensure published & last modification dates
-                    if (post.Published == DateTime.MinValue)
-                        post.Published = info.CreationTimeUtc;
-                    post.LastModified = info.LastWriteTimeUtc;
-
-                    // Ensure ETag
-                    if (string.IsNullOrWhiteSpace(post.Settings.ETag))
-                        post.Settings.ETag = BlogUtils.GenerateETag(post.Title, post.LastModified);
-
-                    // Store path & start line of the body
-                    post.Settings.Path = info.FullName;
-                    post.Settings.BodyStart = start;
-
-                    // Store the post in the collection
-                    _posts[post.Slug] = post;
-                }
+            if (post != null)
+            {
+                _posts.Remove(post.Slug);
             }
         }
 
@@ -275,6 +258,57 @@ namespace Bloggine.Services
                 }
             }
             return null;
+        }
+
+        private PostInfo LoadFile(FileInfo info)
+        {
+            _logger?.LogInformation($"Reading meta data for file [{ info.Name }]");
+
+            using (var sr = new StreamReader(info.OpenRead()))
+            {
+                var sb = new StringBuilder();
+                var post = new PostInfo();
+                var start = 0;
+
+                if (!sr.EndOfStream && sr.Peek() == '-')
+                {
+                    sr.ReadLine();
+                    start++;
+
+                    while (!sr.EndOfStream)
+                    {
+                        start++;
+                        var line = sr.ReadLine();
+
+                        if (line.StartsWith("---")) break;
+
+                        sb.AppendLine(line);
+                    }
+                    post = _deserializer.Deserialize<PostInfo>(sb.ToString());
+                    post.Settings = _deserializer.Deserialize<PostSettings>(sb.ToString());
+                }
+
+                // Ensure title
+                if (string.IsNullOrWhiteSpace(post.Title))
+                    post.Title = GenerateTitle(info.FullName);
+                // Ensure slug
+                if (string.IsNullOrWhiteSpace(post.Slug))
+                    post.Slug = BlogUtils.GenerateSlug(post.Title);
+                // Ensure published & last modification dates
+                if (post.Published == DateTime.MinValue)
+                    post.Published = info.CreationTimeUtc;
+                post.LastModified = info.LastWriteTimeUtc;
+
+                // Ensure ETag
+                if (string.IsNullOrWhiteSpace(post.Settings.ETag))
+                    post.Settings.ETag = BlogUtils.GenerateETag(post.Title, post.LastModified);
+
+                // Store path & start line of the body
+                post.Settings.Path = info.FullName;
+                post.Settings.BodyStart = start;
+
+                return post;
+            }
         }
 
         /// <summary>

@@ -29,5 +29,15 @@ namespace Bloggine.Models
         /// Gets/sets the website URL.
         /// </summary>
         public string Website { get; set; }
+
+        /// <summary>
+        /// Gets/sets the image URL.
+        /// </summary>
+        public string Image { get; set; }
+
+        /// <summary>
+        /// Gets if the user has an image.
+        /// </summary>
+        public bool HasImage => !string.IsNullOrWhiteSpace(Image);
     }
 }
