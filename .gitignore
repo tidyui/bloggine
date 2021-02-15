@@ -31,6 +31,9 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Mac OSX
+.DS_Store
+
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -273,6 +276,7 @@ FakesAssemblies/
 
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
+package-lock.json
 node_modules/
 
 # Visual Studio 6 build log

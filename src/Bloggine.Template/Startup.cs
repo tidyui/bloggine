@@ -14,6 +14,13 @@ namespace Template
         {
             services.AddBloggine(options =>
             {
+                // options.CacheMaxAge = 86400;
+                // options.DataAssetPath = "Uploads";
+                // options.DataPath = "Data";
+                // options.Headline = "Just another markdown blog";
+                // options.Title = "Bloggine";
+                // options.Theme = "Default";
+                // options.UseFileSystemWatcher = true;
                 options.UseRazorRuntimeCompilation = true;
             });
         }
