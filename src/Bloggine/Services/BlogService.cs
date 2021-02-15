@@ -29,6 +29,7 @@ namespace Bloggine.Services
         private readonly ILogger _logger;
         private Dictionary<string, PostInfo> _posts = new Dictionary<string, PostInfo>();
         private readonly IDeserializer _deserializer;
+        private readonly MarkdownPipeline _pipeline;
 
         /// <summary>
         /// Gets/sets the settings.
@@ -93,6 +94,11 @@ namespace Bloggine.Services
             // Create yaml deserializer
             _deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
+                .Build();
+
+            // Create markdown pipeline
+            _pipeline = new Markdig.MarkdownPipelineBuilder()
+                .UsePipeTables()
                 .Build();
 
             // Load the structure
@@ -252,7 +258,7 @@ namespace Bloggine.Services
                         Tags = info.Tags,
                         Published = info.Published,
                         LastModified = info.LastModified,
-                        Body = Markdown.ToHtml(md),
+                        Body = Markdown.ToHtml(md, _pipeline),
                         Settings = info.Settings
                     };
                 }

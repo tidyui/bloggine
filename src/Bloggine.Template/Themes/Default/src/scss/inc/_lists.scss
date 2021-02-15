@@ -1,0 +1,9 @@
+.list-group-item {
+    background: #f4f5f8;
+    border: none;
+    margin-top: .5rem;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}

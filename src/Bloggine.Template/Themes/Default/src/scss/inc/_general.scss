@@ -1,0 +1,26 @@
+@import "vars";
+
+a {
+    color: $color_primary;
+    transition: color .2s ease-in-out;
+
+    &:hover, &:active {
+        color: darken($color_primary, 20%);
+    }
+}
+
+img {
+    max-width: 100%;
+    border-radius: .25rem;
+}
+
+pre {
+    color: #eee;
+    background: #043143;
+    padding: 1.5rem;
+    border-radius: .25rem;
+}
+
+code {
+    color: $color_primary;
+}

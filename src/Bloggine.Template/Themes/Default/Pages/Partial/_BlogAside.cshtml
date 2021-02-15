@@ -1,0 +1,23 @@
+<div class="box">
+    <h4>Latest Posts</h5>
+    <ul class="list-group mb-3">
+        @foreach (var post in Blog.GetPosts(o => o.Take = 4))
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @post.Title
+            </li>
+        }
+    </ul>
+</div>
+
+<div class="box">
+    <h4>Categories</h4>
+    <ul class="list-group">
+        @foreach (var cat in Blog.Categories.OrderByDescending(c => c.Count))
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @cat.Title <span class="badge bg-primary rounded-pill">@cat.Count</span>
+            </li>
+        }
+    </ul>
+</div>

@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8121DAB8-DC27-41A2-8EF6-6E364F203DFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marks", "src\Bloggine\Bloggine.csproj", "{483E5387-3854-4D11-A962-9A5A756C8A56}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloggine", "src\Bloggine\Bloggine.csproj", "{483E5387-3854-4D11-A962-9A5A756C8A56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template", "src\Bloggine.Template\Template.csproj", "{C3532619-283B-4750-B0B9-B6B3073CE1E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,8 +34,21 @@ Global
 		{483E5387-3854-4D11-A962-9A5A756C8A56}.Release|x64.Build.0 = Release|Any CPU
 		{483E5387-3854-4D11-A962-9A5A756C8A56}.Release|x86.ActiveCfg = Release|Any CPU
 		{483E5387-3854-4D11-A962-9A5A756C8A56}.Release|x86.Build.0 = Release|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Release|x64.Build.0 = Release|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{483E5387-3854-4D11-A962-9A5A756C8A56} = {8121DAB8-DC27-41A2-8EF6-6E364F203DFA}
+		{C3532619-283B-4750-B0B9-B6B3073CE1E6} = {8121DAB8-DC27-41A2-8EF6-6E364F203DFA}
 	EndGlobalSection
 EndGlobal

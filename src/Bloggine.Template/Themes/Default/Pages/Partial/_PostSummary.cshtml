@@ -1,0 +1,42 @@
+@model PostInfo
+
+<a href="~/@Model.Slug">
+    <article>
+        @if (Model.HasPrimaryImage)
+        {
+        <img src="~/@Model.PrimaryImage" alt="@Model.Title">
+        }
+        <div class="post-body">
+            <header>
+                @if (Model.HasCategory)
+                {
+                    <p class="category">
+                        @Model.Category
+                    </p>
+                }
+                <h4>@Model.Title</h4>
+            </header>
+            @if (Model.HasExcerpt)
+            {
+            <p class="card-text">@Model.Excerpt</p>
+            }
+            <small>
+                @if (Model.Settings.Author != null)
+                {
+                    <span class="author">
+                        @if (!string.IsNullOrWhiteSpace(Model.Settings.Author.Image))
+                        {
+                            <img src="~/@Model.Settings.Author.Image" alt="@Model.Settings.Author.Name">
+                        }
+                        <span class="author-name">@Model.Settings.Author.Name</span>
+                        @Model.Published.ToLongDateString()
+                    </span>
+                }
+                else
+                {
+                    <text>@Model.Published.ToLongDateString()</text>
+                }
+            </small>
+        </div>
+    </article>
+</a>

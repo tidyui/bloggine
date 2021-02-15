@@ -1,0 +1,34 @@
+@page "~/"
+@{
+    ViewData["Title"] = @Blog.Settings.Title;
+
+    var posts = Blog.GetPosts();
+    var wide = posts.Count() % 2 != 0;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-xl-8 col-xxl-9">
+            <div class="row">
+                @foreach (var post in posts)
+                {
+                    if (wide && post == posts.First())
+                    {
+                        <div class="col-12 mb-4 post-summary">
+                            <partial name="Partial/_PostSummary" model="post" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-12 col-md-6 mb-4 post-summary">
+                            <partial name="Partial/_PostSummary" model="post" />
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="col-xl-4 col-xxl-3">
+            <partial name="Partial/_BlogAside" />
+        </div>
+    </div>
+</div>

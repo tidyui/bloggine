@@ -1,0 +1,52 @@
+@page "~/post/{slug}"
+@{
+    var post = await Blog.GetBySlugAsync((string)RouteData.Values["slug"]);
+    ViewData["Title"] = post.Title;
+}
+@section head {
+    <meta name="keywords" content="@post.Settings.Keywords">
+    <meta name="description" content="@post.Settings.Description">
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <article>
+                <header>
+                    @if (post.HasCategory)
+                    {
+                        <p class="category">@post.Category</p>
+                    }
+                    <h1>@post.Title</h1>
+                    @if (post.HasExcerpt)
+                    {
+                        <p class="lead">
+                            @post.Excerpt
+                        </p>
+                    }
+                    @if (post.Settings.Author != null)
+                    {
+                        <span class="author">
+                            @if (!string.IsNullOrWhiteSpace(post.Settings.Author.Image))
+                            {
+                                <img src="~/@post.Settings.Author.Image" alt="@post.Settings.Author.Name">
+                            }
+                            <span class="author-name">@post.Settings.Author.Name</span>
+                            @post.Published.ToLongDateString()
+                        </span>
+                    }
+                    else
+                    {
+                        <text>@post.Published.ToLongDateString()</text>
+                    }
+                </header>
+
+                @if (post.HasPrimaryImage)
+                {
+                    <img class="mb-4 mt-1" src="~/@post.PrimaryImage" alt="@post.Title">
+                }
+                @Html.Raw(post.Body)
+            </article>
+        </div>
+    </div>
+</div>
