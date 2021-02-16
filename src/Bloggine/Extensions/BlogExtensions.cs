@@ -117,23 +117,17 @@ public static class BlogExtensions
                     blog.Delete(e.FullPath);
                 } catch {}
             };
-            watcher.Renamed += OnRenamed;
+            /*
+             * TODO
+             *
+            watcher.Renamed += (source, e) => {
+                Should be a delete + reload
+            };
+             */
 
             // Begin watching.
             watcher.EnableRaisingEvents = true;
         }
         return app;
-    }
-
-    private static void OnChanged(object source, FileSystemEventArgs e)
-    {
-        // Specify what is done when a file is changed, created, or deleted.
-        Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
-    }
-
-    private static void OnRenamed(object source, RenamedEventArgs e)
-    {
-        // Specify what is done when a file is renamed.
-        Console.WriteLine($"File: {e.OldFullPath} renamed to {e.FullPath}");
     }
 }
