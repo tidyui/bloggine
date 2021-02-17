@@ -1,5 +1,6 @@
 ---
 Category: Getting started
+Tags: [Pharetra, Fusce]
 PrimaryImage: uploads/bird-s-eye-view-photography-of-lighted-city-3573383.jpg
 Excerpt: Cras mattis consectetur purus sit amet fermentum. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Cras justo odio, dapibus ac facilisis in, egestas eget quam.
 Author:

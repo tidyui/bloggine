@@ -1,5 +1,6 @@
 ---
 Category: Getting started
+Tags: [Pharetra, Purus]
 PrimaryImage: uploads/concentrated-little-kids-taking-notes-in-organizer-and-3874109.jpg
 Excerpt: Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula ut id elit.
 Author:
