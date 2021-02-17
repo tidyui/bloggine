@@ -11,9 +11,9 @@
 namespace Bloggine.Models
 {
     /// <summary>
-    /// Parameters for filter a post query.
+    /// The different ways you can filter a post query.
     /// </summary>
-    public sealed class PostQuery
+    public class PostFilter
     {
         /// <summary>
         /// Gets/sets the optional category.
@@ -31,9 +31,9 @@ namespace Bloggine.Models
         public string Tag { get; set; }
 
         /// <summary>
-        /// Gets/sets the post type filter.
+        /// Gets/sets the post type. The default value is UnPinned.
         /// </summary>
-        public PostTypeFilter Type { get; set; } = PostTypeFilter.UnPinned;
+        public PostType Type { get; set; } = PostType.UnPinned;
 
         /// <summary>
         /// The maximum amount of posts that should be returned.

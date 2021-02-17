@@ -170,10 +170,10 @@ namespace Bloggine.Services
         /// </summary>
         /// <param name="options">The filter options</param>
         /// <returns>The matching posts</returns>
-        public PostInfo[] GetPosts(Action<PostQuery> options = null)
+        public PostInfo[] GetPosts(Action<PostFilter> options = null)
         {
-            IEnumerable<PostInfo> query = Posts;
-            var filter = new PostQuery();
+            var posts = Posts;
+            var filter = new PostFilter();
 
             options?.Invoke(filter);
 
@@ -183,21 +183,94 @@ namespace Bloggine.Services
                 _logger?.LogDebug($"Filtering on slug [{ filter.Slug }]");
                 if (_posts.TryGetValue(filter.Slug, out var post))
                 {
-                    query = new [] { post };
+                    posts = new [] { post };
                 }
                 else
                 {
-                    query = new PostInfo[0];
+                    posts = new PostInfo[0];
                 }
             }
 
+            // Build query
+            var query = BuildQuery(posts, filter);
+
+            // Limit result
+            if (filter.Take.HasValue)
+            {
+                _logger?.LogDebug($"Limiting result to [{ filter.Take }] posts");
+                query = query.Take(filter.Take.Value);
+            }
+
+            // Return result
+            return query.ToArray();
+        }
+
+        /// <summary>
+        /// Gets the posts matching the given filter.
+        /// </summary>
+        /// <param name="options">The filter options</param>
+        /// <returns>The matching posts</returns>
+        public PagedResult GetPagedPosts(Action<PostFilterPaged> options = null)
+        {
+            var posts = Posts;
+            var filter = new PostFilterPaged();
+            var result = new PagedResult();
+
+            options?.Invoke(filter);
+
+            // Filter on slug
+            if (!string.IsNullOrWhiteSpace(filter.Slug))
+            {
+                _logger?.LogDebug($"Filtering on slug [{ filter.Slug }]");
+                if (_posts.TryGetValue(filter.Slug, out var post))
+                {
+                    posts = new [] { post };
+                }
+                else
+                {
+                    posts = new PostInfo[0];
+                }
+            }
+
+            // Build query
+            var query = BuildQuery(posts, filter);
+
+            // Get the current page size
+            var pageSize = filter.PageSize.HasValue ? filter.PageSize.Value : Settings.PageSize;
+
+            // Store paging info
+            result.CurrentPage = filter.Page;
+            result.TotalPosts = query.Count();
+            result.TotalPages = (int)Math.Ceiling(result.TotalPosts / (double)pageSize);
+
+            // Select the correct page
+            query = query.Skip(pageSize * filter.Page).Take(pageSize);
+
+            // Limit result
+            if (filter.Take.HasValue)
+            {
+                _logger?.LogDebug($"Limiting result to [{ filter.Take }] posts");
+                query = query.Take(filter.Take.Value);
+            }
+
+            // Store the posts
+            result.Posts = query.ToArray();
+
+            // Return result
+            return result;
+        }
+
+        private IQueryable<PostInfo> BuildQuery(IEnumerable<PostInfo> posts, PostFilter filter)
+        {
+            IQueryable<PostInfo> query = new EnumerableQuery<PostInfo>(posts);
+
             // Filter on type
-            if (filter.Type == PostTypeFilter.Pinned)
+            if (filter.Type == PostType.Pinned)
             {
                 _logger?.LogDebug($"Filtering on type [pinned]");
                 query = query.Where(p => p.Settings.IsPinned);
             }
-            else if (filter.Type == PostTypeFilter.UnPinned)
+            else if (filter.Type == PostType.UnPinned)
             {
                 _logger?.LogDebug($"Filtering on type [unpinned]");
                 query = query.Where(p => !p.Settings.IsPinned);
@@ -217,15 +290,7 @@ namespace Bloggine.Services
                 query = query.Where(p => p.Tags.Contains(filter.Tag));
             }
 
-            // Limit result
-            if (filter.Take.HasValue)
-            {
-                _logger?.LogDebug($"Limiting result to [{ filter.Take }] posts");
-                query = query.Take(filter.Take.Value);
-            }
-
-            // Return result
-            return query.ToArray();
+            return query;
         }
 
         /// <summary>

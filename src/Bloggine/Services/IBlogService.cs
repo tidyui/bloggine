@@ -75,7 +75,14 @@ namespace Bloggine.Services
         /// </summary>
         /// <param name="options">The filter options</param>
         /// <returns>The matching posts</returns>
-        PostInfo[] GetPosts(Action<PostQuery> options = null);
+        PostInfo[] GetPosts(Action<PostFilter> options = null);
+
+        /// <summary>
+        /// Gets the posts matching the given filter.
+        /// </summary>
+        /// <param name="options">The filter options</param>
+        /// <returns>The matching posts</returns>
+        PagedResult GetPagedPosts(Action<PostFilterPaged> options = null);
 
         /// <summary>
         /// Gets the full model for the post with the matching slug. Returns

@@ -58,7 +58,7 @@ namespace Bloggine.Http
                 if (!string.IsNullOrWhiteSpace(url))
                 {
                     // Only rewrite if the url matches one of the available posts
-                    var post = blog.GetPosts(o => { o.Slug = url; o.Type = PostTypeFilter.All; }).FirstOrDefault();
+                    var post = blog.GetPosts(o => { o.Slug = url; o.Type = PostType.All; }).FirstOrDefault();
 
                     if (post != null)
                     {

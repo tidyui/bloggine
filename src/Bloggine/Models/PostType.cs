@@ -11,10 +11,9 @@
 namespace Bloggine.Models
 {
     /// <summary>
-    /// The different types of posts that queries can
-    /// be filtered on.
+    /// The different types of posts that can be fetched.
     /// </summary>
-    public enum PostTypeFilter
+    public enum PostType
     {
         /// <summary>
         /// All of the post.

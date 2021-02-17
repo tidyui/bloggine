@@ -22,14 +22,19 @@ namespace Bloggine
         public int CacheMaxAge { get; set; } = 86400;
 
         /// <summary>
-        /// Gets/sets the data path. The default value is Data.
+        /// Gets/sets the data path. The default value is "Data".
         /// </summary>
         public string DataPath { get; set; } = "Data";
 
         /// <summary>
-        /// Gets/sets the data asset path. The default value is Uploads.
+        /// Gets/sets the data asset path. The default value is "Uploads".
         /// </summary>
         public string DataAssetPath { get; set; } = "Uploads";
+
+        /// <summary>
+        /// Gets/sets the page size for paged queries. The default value is 5.
+        /// </summary>
+        public int PageSize { get; set; } = 2;
 
         /// <summary>
         /// Gets/sets the selected theme.
