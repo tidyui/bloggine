@@ -25,7 +25,7 @@
 .author {
     img {
         width: 3rem !important;
-        height: 3rem im !important;
+        height: 3rem !important;
         margin-right: .5rem !important;
         float: left;
         object-fit: cover;
@@ -36,6 +36,34 @@
         display: block;
         font-family: Bitter, serif;
         font-weight: bold;
+    }
+}
+
+.post-list {
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    img {
+        width: 4rem;
+        height: 4rem;
+        margin-right: .5rem;
+        object-fit: cover;
+        border-radius: .25rem;
+    }
+
+    h6 {
+        margin-bottom: 0;
+    }
+
+    small {
+        display: block;
+    }
+
+    .list-group-item {
+        background: none;
+        padding: 0;
     }
 }
 
