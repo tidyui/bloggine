@@ -9,16 +9,11 @@
                         <header class="d-flex justify-content-between align-items-center">
                             @if (!string.IsNullOrEmpty(post.PrimaryImage))
                             {
-                                <span class="small">
-                                    @if (!string.IsNullOrWhiteSpace(post.Settings.Author.Image))
-                                    {
-                                        <img src="~/@post.PrimaryImage" alt="@post.Title">
-                                    }
-                                </span>
+                                <img src="~/@post.PrimaryImage" alt="@post.Title">
                             }
                             <span class="col">
                                 <h6>@post.Title</h6>
-                                <small>@post.Published.ToShortDateString()</small>
+                                <small>@post.Published.ToLongDateString()</small>
                             </span>
                         </header>
                     </article>
