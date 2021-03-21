@@ -3,7 +3,7 @@ image: Visual Studio 2019
 skip_tags: true
 branches:
   only:
-    - master
+    - main
 configuration: Debug
 before_build:
   - dotnet restore
