@@ -4,7 +4,7 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  *
- * http://github.com/tidyui
+ * http://github.com/tidyui/bloggine
  *
  */
 
@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Bloggine.Models;
 using Bloggine.Services;
 
 namespace Bloggine.Http
