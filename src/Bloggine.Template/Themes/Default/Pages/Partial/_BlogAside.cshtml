@@ -1,7 +1,7 @@
 <div class="box">
     <h4>Latest Posts</h5>
     <ul class="list-group post-list mb-3">
-        @foreach (var post in Blog.GetPosts(o => o.Take = 4))
+        @foreach (var post in Blog.GetPosts(take: 4))
         {
             <li class="list-group-item mb-3">
                 <a href="~/@post.Slug">

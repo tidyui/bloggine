@@ -71,18 +71,22 @@ namespace Bloggine.Services
         bool Exists(string slug);
 
         /// <summary>
-        /// Gets the post matching the given filter.
+        /// Gets the posts matching the given expressions.
         /// </summary>
-        /// <param name="options">The filter options</param>
+        /// <param name="exp">The optional expression</param>
+        /// <param name="take">The optional number of posts to return at the most</param>
         /// <returns>The matching posts</returns>
-        PostInfo[] GetPosts(Action<PostFilter> options = null);
+        PostInfo[] GetPosts(Func<PostInfo, bool> exp = null, int? take = null);
 
         /// <summary>
-        /// Gets the posts matching the given filter.
+        /// Gets the posts matching the given expression.
         /// </summary>
-        /// <param name="options">The filter options</param>
+        /// <param name="exp">The expression</param>
+        /// <param name="page">The zero based page index</param>
+        /// <param name="pageSize">The optional page size</param>
+        /// <param name="take">The optional number of posts to return at the most</param>
         /// <returns>The matching posts</returns>
-        PagedResult GetPagedPosts(Action<PostFilterPaged> options = null);
+        PagedResult GetPagedPosts(Func<PostInfo, bool> exp, int page, int? pageSize = null, int? take = null);
 
         /// <summary>
         /// Gets the full model for the post with the matching slug. Returns

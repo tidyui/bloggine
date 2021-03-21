@@ -166,131 +166,64 @@ namespace Bloggine.Services
         }
 
         /// <summary>
-        /// Gets the post matching the given filter.
+        /// Gets the posts matching the given expression.
         /// </summary>
-        /// <param name="options">The filter options</param>
+        /// <param name="exp">The optional expression</param>
+        /// <param name="take">The optional number of posts to return at the most</param>
         /// <returns>The matching posts</returns>
-        public PostInfo[] GetPosts(Action<PostFilter> options = null)
+        public PostInfo[] GetPosts(Func<PostInfo, bool> exp = null, int? take = null)
         {
-            var posts = Posts;
-            var filter = new PostFilter();
-
-            options?.Invoke(filter);
-
-            // Filter on slug
-            if (!string.IsNullOrWhiteSpace(filter.Slug))
-            {
-                _logger?.LogDebug($"Filtering on slug [{ filter.Slug }]");
-                if (_posts.TryGetValue(filter.Slug, out var post))
-                {
-                    posts = new [] { post };
-                }
-                else
-                {
-                    posts = new PostInfo[0];
-                }
-            }
-
-            // Build query
-            var query = BuildQuery(posts, filter);
+            // Get the matching posts
+            var posts = exp != null ? Posts.Where(exp) : Posts;
 
             // Limit result
-            if (filter.Take.HasValue)
+            if (take.HasValue)
             {
-                _logger?.LogDebug($"Limiting result to [{ filter.Take }] posts");
-                query = query.Take(filter.Take.Value);
+                posts = posts.Take(take.Value);
             }
 
             // Return result
-            return query.ToArray();
+            return posts.ToArray();
         }
 
         /// <summary>
-        /// Gets the posts matching the given filter.
+        /// Gets the posts matching the given expression.
         /// </summary>
-        /// <param name="options">The filter options</param>
+        /// <param name="exp">The expression</param>
+        /// <param name="page">The zero based page index</param>
+        /// <param name="pageSize">The optional page size</param>
+        /// <param name="take">The optional number of posts to return at the most</param>
         /// <returns>The matching posts</returns>
-        public PagedResult GetPagedPosts(Action<PostFilterPaged> options = null)
+        public PagedResult GetPagedPosts(Func<PostInfo, bool> exp, int page, int? pageSize = null, int? take = null)
         {
-            var posts = Posts;
-            var filter = new PostFilterPaged();
             var result = new PagedResult();
 
-            options?.Invoke(filter);
-
-            // Filter on slug
-            if (!string.IsNullOrWhiteSpace(filter.Slug))
-            {
-                _logger?.LogDebug($"Filtering on slug [{ filter.Slug }]");
-                if (_posts.TryGetValue(filter.Slug, out var post))
-                {
-                    posts = new [] { post };
-                }
-                else
-                {
-                    posts = new PostInfo[0];
-                }
-            }
-
-            // Build query
-            var query = BuildQuery(posts, filter);
+            // Get the matching posts
+            var posts = Posts.Where(exp);
 
             // Get the current page size
-            var pageSize = filter.PageSize.HasValue ? filter.PageSize.Value : Settings.PageSize;
+            pageSize = pageSize.HasValue ? pageSize.Value : Settings.PageSize;
 
             // Store paging info
-            result.CurrentPage = filter.Page;
-            result.TotalPosts = query.Count();
+            result.CurrentPage = page;
+            result.TotalPosts = posts.Count();
             result.TotalPages = (int)Math.Ceiling(result.TotalPosts / (double)pageSize);
 
             // Select the correct page
-            query = query.Skip(pageSize * filter.Page).Take(pageSize);
+            posts = posts.Skip(pageSize.Value * page).Take(pageSize.Value);
 
             // Limit result
-            if (filter.Take.HasValue)
+            if (take.HasValue)
             {
-                _logger?.LogDebug($"Limiting result to [{ filter.Take }] posts");
-                query = query.Take(filter.Take.Value);
+                _logger?.LogDebug($"Limiting result to [{ take }] posts");
+                posts = posts.Take(take.Value);
             }
 
             // Store the posts
-            result.Posts = query.ToArray();
+            result.Posts = posts.ToArray();
 
             // Return result
             return result;
-        }
-
-        private IQueryable<PostInfo> BuildQuery(IEnumerable<PostInfo> posts, PostFilter filter)
-        {
-            IQueryable<PostInfo> query = new EnumerableQuery<PostInfo>(posts);
-
-            // Filter on type
-            if (filter.Type == PostType.Pinned)
-            {
-                _logger?.LogDebug($"Filtering on type [pinned]");
-                query = query.Where(p => p.Settings.IsPinned);
-            }
-            else if (filter.Type == PostType.UnPinned)
-            {
-                _logger?.LogDebug($"Filtering on type [unpinned]");
-                query = query.Where(p => !p.Settings.IsPinned);
-            }
-
-            // Filter on category
-            if (!string.IsNullOrWhiteSpace(filter.Category))
-            {
-                _logger?.LogDebug($"Filtering on category [{ filter.Category }]");
-                query = query.Where(p => p.Category == filter.Category);
-            }
-
-            // Filter on tag
-            if (!string.IsNullOrWhiteSpace(filter.Tag))
-            {
-                _logger?.LogDebug($"Filtering on tag [{ filter.Tag }]");
-                query = query.Where(p => p.Tags.Contains(filter.Tag));
-            }
-
-            return query;
         }
 
         /// <summary>
