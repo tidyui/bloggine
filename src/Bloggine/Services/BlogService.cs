@@ -26,7 +26,7 @@ namespace Bloggine.Services
     /// <summary>
     /// The main application service.
     /// </summary>
-    public sealed class BlogService : IBlogService, IDisposable
+    internal sealed class BlogService : IBlogService, IDisposable
     {
         private readonly ILogger<BlogService> _logger;
         private Dictionary<string, PostInfo> _posts = new();

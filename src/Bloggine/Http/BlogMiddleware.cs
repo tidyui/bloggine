@@ -21,7 +21,7 @@ namespace Bloggine.Http
     /// <summary>
     /// Middleware for routing requests.
     /// </summary>
-    public sealed class BlogMiddleware
+    internal sealed class BlogMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<BlogMiddleware> _logger;

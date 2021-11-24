@@ -63,10 +63,8 @@ namespace Bloggine
 
                 if (options.UseFileSystemWatcher)
                 {
-                    if (app.ApplicationServices.GetService<IBlogService>() is BlogService blogService)
-                    {
-                        blogService.InitFilewatcher(Blog.Environment.ContentRootPath);
-                    }
+                    var blog = app.ApplicationServices.GetService<IBlogService>();
+                    blog.InitFilewatcher(Blog.Environment.ContentRootPath);
                 }
                 next(app);
             };
