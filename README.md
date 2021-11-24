@@ -1,9 +1,9 @@
 # Welcome to Bloggine
 
-| Build server | Platform     | Build status |
-|--------------|--------------|--------------|
-| AppVeyor     | Windows      | [![Build status](https://ci.appveyor.com/api/projects/status/ktwney0hbki61bmi?svg=true)](https://ci.appveyor.com/project/tidyui/bloggine) |
-| Travis       | Linux / OS X | [![Build status](https://travis-ci.org/tidyui/bloggine.svg?branch=main)](https://travis-ci.org/tidyui/bloggine) |
+| Build server   | Platform     | Build status |
+|----------------|--------------|--------------|
+| GitHub Actions | Windows      | [![.NET Linux](https://github.com/tidyui/bloggine/actions/workflows/dotnet_linux.yml/badge.svg)](https://github.com/tidyui/bloggine/actions/workflows/dotnet_linux.yml) |
+| GitHub Actions | Linux        | [![.NET Win](https://github.com/tidyui/bloggine/actions/workflows/dotnet_win.yml/badge.svg)](https://github.com/tidyui/bloggine/actions/workflows/dotnet_win.yml) |
 
 
-Dead simple, super fast, flat-file Markdown blog for .NET5
+Dead simple, super fast, flat-file Markdown blog for .NET6
