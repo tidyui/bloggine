@@ -13,7 +13,7 @@ namespace Bloggine.Models
     /// <summary>
     /// The author information.
     /// </summary>
-    public sealed class Author
+    public sealed record Author
     {
         /// <summary>
         /// Gets/sets the author name.

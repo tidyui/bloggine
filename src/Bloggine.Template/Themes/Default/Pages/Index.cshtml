@@ -1,6 +1,6 @@
 @page "~/"
 @{
-    ViewData["Title"] = @Blog.Settings.Title;
+    ViewData["Title"] = @Blog.Options.Title;
 
     var posts = Blog.GetPosts();
     var wide = posts.Count() % 2 != 0;

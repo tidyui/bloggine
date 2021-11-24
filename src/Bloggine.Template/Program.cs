@@ -1,26 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Bloggine;
 
-namespace Template
+var app = Blog.Create(args, options =>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+    // options.CacheMaxAge = 86400;
+    // options.DataAssetPath = "Uploads";
+    // options.DataPath = "Data";
+    // options.Headline = "Just another markdown blog";
+    // options.Title = "Bloggine";
+    // options.Theme = "Default";
+    options.UseFileSystemWatcher = true;
+});
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-}
+app.Run();

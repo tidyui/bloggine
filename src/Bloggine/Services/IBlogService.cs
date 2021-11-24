@@ -9,6 +9,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bloggine.Models;
 
@@ -20,9 +21,9 @@ namespace Bloggine.Services
     public interface IBlogService
     {
         /// <summary>
-        /// Gets/sets the blog settings.
+        /// Gets/sets the current blog options.
         /// </summary>
-        BlogConfig Settings { get; set; }
+        BlogOptions Options { get; set; }
 
         /// <summary>
         /// Gets/sets the total number of posts.
@@ -30,26 +31,26 @@ namespace Bloggine.Services
         int Count { get; }
 
         /// <summary>
-        /// Gets all of the available posts in descending
-        /// chronological order.
-        /// </summary>
-        PostInfo[] Posts { get; }
-
-        /// <summary>
         /// Gets the available categories sorted in
         /// alphabetical order.
         /// </summary>
-        Taxonomy[] Categories { get; }
+        IEnumerable<Taxonomy> Categories { get; }
 
         /// <summary>
         /// Gets the available tags sorted in alphabetical order.
         /// </summary>
-        Taxonomy[] Tags { get; }
+        IEnumerable<Taxonomy> Tags { get; }
 
         /// <summary>
         /// Initializes the content structure from disc.
         /// </summary>
         void Init();
+
+        /// <summary>
+        /// Initializes the file system watcher.
+        /// </summary>
+        /// <param name="contentRootPath">The content root path of the application</param>
+        void InitFilewatcher(string contentRootPath);
 
         /// <summary>
         /// Reloads the post with the given path.
@@ -71,12 +72,12 @@ namespace Bloggine.Services
         bool Exists(string slug);
 
         /// <summary>
-        /// Gets the posts matching the given expressions.
+        /// Gets the available posts matching the given expressions.
         /// </summary>
         /// <param name="exp">The optional expression</param>
         /// <param name="take">The optional number of posts to return at the most</param>
         /// <returns>The matching posts</returns>
-        PostInfo[] GetPosts(Func<PostInfo, bool> exp = null, int? take = null);
+        IEnumerable<PostInfo> GetPosts(Func<PostInfo, bool> exp = null, int? take = null);
 
         /// <summary>
         /// Gets the posts matching the given expression.

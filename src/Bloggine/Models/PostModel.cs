@@ -13,8 +13,13 @@ namespace Bloggine.Models
     /// <summary>
     /// The full post model.
     /// </summary>
-    public sealed record Post : PostInfo
+    public sealed record PostModel
     {
+        /// <summary>
+        /// Get/sets the post information.
+        /// </summary>
+        public PostInfo Post { get; set; }
+
         /// <summary>
         /// Gets/sets the full post body.
         /// </summary>

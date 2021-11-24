@@ -10,31 +10,34 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bloggine.Models;
 using Markdig;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using YamlDotNet.Serialization;
-using Bloggine.Models;
 
 namespace Bloggine.Services
 {
     /// <summary>
     /// The main application service.
     /// </summary>
-    public sealed class BlogService : IBlogService
+    public sealed class BlogService : IBlogService, IDisposable
     {
-        private readonly ILogger _logger;
-        private Dictionary<string, PostInfo> _posts = new Dictionary<string, PostInfo>();
+        private readonly ILogger<BlogService> _logger;
+        private Dictionary<string, PostInfo> _posts = new();
         private readonly IDeserializer _deserializer;
         private readonly MarkdownPipeline _pipeline;
+        private FileSystemWatcher _watcher;
 
         /// <summary>
-        /// Gets/sets the settings.
+        /// Gets/sets the options.
         /// </summary>
-        public BlogConfig Settings { get; set; }
+        public BlogOptions Options { get; set; }
 
         /// <summary>
         /// Gets/sets the total number of posts.
@@ -42,16 +45,9 @@ namespace Bloggine.Services
         public int Count { get; private set; }
 
         /// <summary>
-        /// Gets all of the available posts in descending
-        /// chronological order.
-        /// </summary>
-        public PostInfo[] Posts =>
-            _posts.Values.OrderByDescending(p => p.Published).ToArray();
-
-        /// <summary>
         /// Gets the available categories sorted in alphabetical order.
         /// </summary>
-        public Taxonomy[] Categories =>
+        public IEnumerable<Taxonomy> Categories =>
             _posts.Values.Where(p => !string.IsNullOrWhiteSpace(p.Category))
                 .GroupBy(p => p.Category)
                 .Select(g => new Taxonomy
@@ -60,12 +56,12 @@ namespace Bloggine.Services
                     Count = g.Count()
                 })
                 .OrderBy(t => t.Title)
-                .ToArray();
+                .AsEnumerable();
 
         /// <summary>
         /// Gets the available tags sorted in alphabetical order.
         /// </summary>
-        public Taxonomy[] Tags =>
+        public IEnumerable<Taxonomy> Tags =>
             _posts.Values.SelectMany(p => p.Tags).GroupBy(p => p)
                 .Select(g => new Taxonomy
                 {
@@ -73,23 +69,19 @@ namespace Bloggine.Services
                     Count = g.Count()
                 })
                 .OrderBy(t => t.Title)
-                .ToArray();
+                .AsEnumerable();
 
         /// <summary>
         /// Default constructor.
         /// </summary>
-        /// <param name="config">The blog config</param>
-        /// <param name="factory">The logger factory</param>
-        public BlogService(BlogConfig config, ILoggerFactory factory = null)
+        /// <param name="options">The blog options</param>
+        /// <param name="logger">The optional logger</param>
+        //public BlogService(BlogOptions options, ILogger<BlogService> logger = null)
+        public BlogService(IOptions<BlogOptions> options, ILogger<BlogService> logger = null)
         {
             // Store services
-            Settings = config;
-
-            // Create logger
-            if (factory != null)
-            {
-                _logger = factory.CreateLogger(typeof(BlogService));
-            }
+            Options = options?.Value;
+            _logger = logger;
 
             // Create yaml deserializer
             _deserializer = new DeserializerBuilder()
@@ -97,7 +89,7 @@ namespace Bloggine.Services
                 .Build();
 
             // Create markdown pipeline
-            _pipeline = new Markdig.MarkdownPipelineBuilder()
+            _pipeline = new MarkdownPipelineBuilder()
                 .UsePipeTables()
                 .Build();
 
@@ -114,8 +106,8 @@ namespace Bloggine.Services
             _posts = new Dictionary<string, PostInfo>();
 
             // Open data directory
-            _logger?.LogInformation($"Opening data directory [{ Settings.DataPath }]");
-            var dir = new DirectoryInfo(Settings.DataPath);
+            _logger?.LogDebug($"Opening data directory [{ Options.DataPath }]");
+            var dir = new DirectoryInfo(Options.DataPath);
             var files = dir.GetFiles("*.md");
 
             // Set post count
@@ -130,15 +122,82 @@ namespace Bloggine.Services
         }
 
         /// <summary>
+        /// Initializes the file system watcher.
+        /// </summary>
+        /// <param name="contentRootPath">The content root path of the application</param>
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Logging should catch all exceptions.")]
+        public void InitFilewatcher(string contentRootPath)
+        {
+            _watcher = new()
+            {
+                Path = Path.Combine(contentRootPath, Options.DataPath),
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+                Filter = "*.md"
+            };
+
+            _watcher.Changed += (source, e) =>
+            {
+                try
+                {
+                    Reload(e.FullPath);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError($"Filewatcher.Changed { e.Name }: { ex.Message }");
+                }
+            };
+            _watcher.Created += (source, e) =>
+            {
+                try
+                {
+                    Reload(e.FullPath);
+
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError($"Filewatcher.Created { e.Name }: { ex.Message }");
+                }
+            };
+            _watcher.Deleted += (source, e) =>
+            {
+                try
+                {
+                    Delete(e.FullPath);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError($"Filewatcher.Deleted { e.Name }: { ex.Message }");
+                }
+            };
+            _watcher.Renamed += (source, e) => 
+            {
+                try
+                {
+                    Delete(e.OldFullPath);
+                    Reload(e.FullPath);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError($"Filewatcher.Renamed { e.OldName }: { ex.Message }");
+                }
+            };
+            _watcher.EnableRaisingEvents = true;
+        }
+
+        /// <summary>
         /// Reloads the file with the given path.
         /// </summary>
         /// <param name="path">The full path</param>
         public void Reload(string path)
         {
             var info = new FileInfo(path);
-            var post = LoadFile(info);
 
-            _posts[post.Slug] = post;
+            if (info.Exists)
+            {
+                var post = LoadFile(info);
+                _posts[post.Slug] = post;
+
+            }
         }
 
         /// <summary>
@@ -171,10 +230,16 @@ namespace Bloggine.Services
         /// <param name="exp">The optional expression</param>
         /// <param name="take">The optional number of posts to return at the most</param>
         /// <returns>The matching posts</returns>
-        public PostInfo[] GetPosts(Func<PostInfo, bool> exp = null, int? take = null)
+        public IEnumerable<PostInfo> GetPosts(Func<PostInfo, bool> exp = null, int? take = null)
         {
             // Get the matching posts
-            var posts = exp != null ? Posts.Where(exp) : Posts;
+            var posts = _posts.Values.OrderByDescending(p => p.Published).AsEnumerable();
+
+            // Execute query
+            if (exp != null)
+            {
+                posts = posts.Where(exp);
+            }
 
             // Limit result
             if (take.HasValue)
@@ -183,7 +248,7 @@ namespace Bloggine.Services
             }
 
             // Return result
-            return posts.ToArray();
+            return posts.AsEnumerable();
         }
 
         /// <summary>
@@ -199,10 +264,10 @@ namespace Bloggine.Services
             var result = new PagedResult();
 
             // Get the matching posts
-            var posts = Posts.Where(exp);
+            var posts = GetPosts(exp);
 
             // Get the current page size
-            pageSize = pageSize.HasValue ? pageSize.Value : Settings.PageSize;
+            pageSize ??= Options.PageSize;
 
             // Store paging info
             result.CurrentPage = page;
@@ -238,81 +303,92 @@ namespace Bloggine.Services
             {
                 var file = new FileInfo(info.Settings.Path);
 
-                using (var sr = new StreamReader(file.OpenRead()))
-                {
-                    for (var n = 0; n < info.Settings.BodyStart; n++)
-                    {
-                        await sr.ReadLineAsync();
-                    }
-                    var md = await sr.ReadToEndAsync();
+                using var sr = new StreamReader(file.OpenRead());
 
-                    return new Post
-                    {
-                        Title = info.Title,
-                        Slug = info.Slug,
-                        PrimaryImage = info.PrimaryImage,
-                        Excerpt = info.Excerpt,
-                        Category = info.Category,
-                        Tags = info.Tags,
-                        Published = info.Published,
-                        LastModified = info.LastModified,
-                        Body = Markdown.ToHtml(md, _pipeline),
-                        Settings = info.Settings
-                    };
+                for (var n = 0; n < info.Settings.BodyStart; n++)
+                {
+                    await sr.ReadLineAsync().ConfigureAwait(false);
                 }
+                var md = await sr.ReadToEndAsync().ConfigureAwait(false);
+
+                return new Post
+                {
+                    Title = info.Title,
+                    Slug = info.Slug,
+                    PrimaryImage = info.PrimaryImage,
+                    Excerpt = info.Excerpt,
+                    Category = info.Category,
+                    Tags = info.Tags,
+                    Published = info.Published,
+                    LastModified = info.LastModified,
+                    Body = Markdown.ToHtml(md, _pipeline),
+                    Settings = info.Settings
+                };
             }
             return null;
+        }
+
+        /// <summary>
+        /// Disposes the service.
+        /// </summary>
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+
+            if (_watcher != null)
+            {
+                _watcher.Dispose();
+            }
         }
 
         private PostInfo LoadFile(FileInfo info)
         {
             _logger?.LogInformation($"Reading meta data for file [{ info.Name }]");
 
-            using (var sr = new StreamReader(info.OpenRead()))
+            using var sr = new StreamReader(info.OpenRead());
+
+            var sb = new StringBuilder();
+            var post = new PostInfo();
+            var start = 0;
+
+            if (!sr.EndOfStream && sr.Peek() == '-')
             {
-                var sb = new StringBuilder();
-                var post = new PostInfo();
-                var start = 0;
+                sr.ReadLine();
+                start++;
 
-                if (!sr.EndOfStream && sr.Peek() == '-')
+                while (!sr.EndOfStream)
                 {
-                    sr.ReadLine();
                     start++;
+                    var line = sr.ReadLine();
 
-                    while (!sr.EndOfStream)
-                    {
-                        start++;
-                        var line = sr.ReadLine();
+                    if (line.StartsWith("---", StringComparison.InvariantCulture)) break;
 
-                        if (line.StartsWith("---")) break;
-
-                        sb.AppendLine(line);
-                    }
-                    post = _deserializer.Deserialize<PostInfo>(sb.ToString());
-                    post.Settings = _deserializer.Deserialize<PostSettings>(sb.ToString());
+                    sb.AppendLine(line);
                 }
-
-                // Ensure title
-                if (string.IsNullOrWhiteSpace(post.Title))
-                    post.Title = GenerateTitle(info.FullName);
-                // Ensure slug
-                if (string.IsNullOrWhiteSpace(post.Slug))
-                    post.Slug = BlogUtils.GenerateSlug(post.Title);
-                // Ensure published & last modification dates
-                if (post.Published == DateTime.MinValue)
-                    post.Published = info.CreationTimeUtc;
-                post.LastModified = info.LastWriteTimeUtc;
-
-                // Ensure ETag
-                if (string.IsNullOrWhiteSpace(post.Settings.ETag))
-                    post.Settings.ETag = BlogUtils.GenerateETag(post.Title, post.LastModified);
-
-                // Store path & start line of the body
-                post.Settings.Path = info.FullName;
-                post.Settings.BodyStart = start;
-
-                return post;
+                post = _deserializer.Deserialize<PostInfo>(sb.ToString());
+                post.Settings = _deserializer.Deserialize<PostSettings>(sb.ToString());
             }
+
+            // Ensure title
+            if (string.IsNullOrWhiteSpace(post.Title))
+                post.Title = GenerateTitle(info.FullName);
+            // Ensure slug
+            if (string.IsNullOrWhiteSpace(post.Slug))
+                post.Slug = BlogUtils.GenerateSlug(post.Title);
+            // Ensure published & last modification dates
+            if (post.Published == DateTime.MinValue)
+                post.Published = info.CreationTimeUtc;
+            post.LastModified = info.LastWriteTimeUtc;
+
+            // Ensure ETag
+            if (string.IsNullOrWhiteSpace(post.Settings.ETag))
+                post.Settings.ETag = BlogUtils.GenerateETag(post.Title, post.LastModified);
+
+            // Store path & start line of the body
+            post.Settings.Path = info.FullName;
+            post.Settings.BodyStart = start;
+
+            return post;
         }
 
         /// <summary>
@@ -320,13 +396,13 @@ namespace Bloggine.Services
         /// </summary>
         /// <param name="path">The file path</param>
         /// <returns>The generated title</returns>
-        private string GenerateTitle(string path)
+        private static string GenerateTitle(string path)
         {
             var info = new FileInfo(path);
 
             if (!string.IsNullOrWhiteSpace(info.Extension))
             {
-                return info.Name.Replace(info.Extension, "");
+                return info.Name.Replace(info.Extension, "", StringComparison.InvariantCulture);
             }
             return info.Name;
         }

@@ -13,7 +13,7 @@ namespace Bloggine
     /// <summary>
     /// The different configuration options available.
     /// </summary>
-    public class BlogConfig
+    public class BlogOptions
     {
         /// <summary>
         /// Gets/sets the global max-age in seconds. The default
@@ -50,12 +50,6 @@ namespace Bloggine
         /// Gets/sets the blog headline.
         /// </summary>
         public string Headline { get; set; } = "Just another markdown blog";
-
-        /// <summary>
-        /// Gets/sets if runtime compilation of razor pages should
-        /// be used. The default value is false.
-        /// </summary>
-        public bool UseRazorRuntimeCompilation { get; set; } = false;
 
         /// <summary>
         /// Gets/sets if the filesystem watcher should be used to

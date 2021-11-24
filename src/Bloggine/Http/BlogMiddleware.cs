@@ -24,21 +24,17 @@ namespace Bloggine.Http
     public sealed class BlogMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger _logger;
+        private readonly ILogger<BlogMiddleware> _logger;
 
         /// <summary>
         /// Default constructor.
         /// </summary>
         /// <param name="next">The next middleware component in the pipeline</param>
-        /// <param name="factory">The optional logger factory</param>
-        public BlogMiddleware(RequestDelegate next, ILoggerFactory factory = null)
+        /// <param name="logger">The optional logger</param>
+        public BlogMiddleware(RequestDelegate next, ILogger<BlogMiddleware> logger = null)
         {
             _next = next;
-
-            if (factory != null)
-            {
-                _logger = factory.CreateLogger(typeof(BlogMiddleware));
-            }
+            _logger = logger;
         }
 
         /// <summary>
@@ -47,12 +43,24 @@ namespace Bloggine.Http
         /// <param name="context">The current http context</param>
         /// <param name="blog">The blog service</param>
         /// <returns>The async task of the middleware component next in the pipeline</returns>
+        /// <exception cref="ArgumentNullException">If context is null</exception>
+        /// <exception cref="ArgumentNullException">If blog is null</exception>
         public async Task InvokeAsync(HttpContext context, IBlogService blog)
         {
+            // Validate input params
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+            if (blog == null)
+            {
+                throw new ArgumentNullException(nameof(blog));
+            }
+
             // Check if we have a requested url
             if (context.Request.Path.HasValue)
             {
-                var url = context.Request.Path.Value.Substring(1);
+                var url = context.Request.Path.Value[1..];
 
                 if (!string.IsNullOrWhiteSpace(url))
                 {
@@ -83,9 +91,7 @@ namespace Bloggine.Http
                             headers.CacheControl = new CacheControlHeaderValue
                             {
                                 Public = true,
-                                MaxAge = TimeSpan.FromSeconds(post.Settings.CacheMaxAge.HasValue
-                                    ? post.Settings.CacheMaxAge.Value
-                                    : blog.Settings.CacheMaxAge)
+                                MaxAge = TimeSpan.FromSeconds(post.Settings.CacheMaxAge ?? blog.Options.CacheMaxAge)
                             };
                             headers.ETag = new EntityTagHeaderValue(post.Settings.ETag);
                             headers.LastModified = post.LastModified;
@@ -93,14 +99,14 @@ namespace Bloggine.Http
                     }
                     else
                     {
-                        _logger?.LogInformation($"Passing through request to [{ context.Request.Path.Value }]");
+                        _logger?.LogDebug($"Passing through request to [{ context.Request.Path.Value }]");
                     }
                 } else
             {
-                    _logger?.LogInformation($"Passing through request to [{ context.Request.Path.Value }]");
+                    _logger?.LogDebug($"Passing through request to [{ context.Request.Path.Value }]");
                 }
             }
-            await _next(context);
+            await _next(context).ConfigureAwait(false);
         }
     }
 }

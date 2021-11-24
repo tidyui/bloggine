@@ -9,6 +9,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -30,12 +31,11 @@ namespace Bloggine
         {
             var encoding = new UTF8Encoding();
 
-            using (var crypto = MD5.Create())
-            {
-                var str = name + date.ToString("yyyy-MM-dd HH:mm:ss");
-                var bytes = crypto.ComputeHash(encoding.GetBytes(str));
-                return $"\"{Convert.ToBase64String(bytes)}\"";
-            }
+            using var crypto = SHA256.Create();
+
+            var str = name + date.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            var bytes = crypto.ComputeHash(encoding.GetBytes(str));
+            return $"\"{Convert.ToBase64String(bytes)}\"";
         }
 
         /// <summary>
@@ -46,42 +46,48 @@ namespace Bloggine
         public static string GenerateSlug(string str)
         {
             // Trim & make lower case
-            var slug = str.Trim().ToLower();
+            var slug = str.Trim().ToLowerInvariant();
 
             // Convert culture specific characters
             slug = slug
-                .Replace("å", "a")
-                .Replace("ä", "a")
-                .Replace("á", "a")
-                .Replace("à", "a")
-                .Replace("ö", "o")
-                .Replace("ó", "o")
-                .Replace("ò", "o")
-                .Replace("é", "e")
-                .Replace("è", "e")
-                .Replace("í", "i")
-                .Replace("ì", "i")
-                .Replace("ž", "z")
-                .Replace("š", "s")
-                .Replace("č", "c");
+                .Replace("å", "a", StringComparison.InvariantCulture)
+                .Replace("ä", "a", StringComparison.InvariantCulture)
+                .Replace("á", "a", StringComparison.InvariantCulture)
+                .Replace("à", "a", StringComparison.InvariantCulture)
+                .Replace("ö", "o", StringComparison.InvariantCulture)
+                .Replace("ó", "o", StringComparison.InvariantCulture)
+                .Replace("ò", "o", StringComparison.InvariantCulture)
+                .Replace("é", "e", StringComparison.InvariantCulture)
+                .Replace("è", "e", StringComparison.InvariantCulture)
+                .Replace("í", "i", StringComparison.InvariantCulture)
+                .Replace("ì", "i", StringComparison.InvariantCulture)
+                .Replace("ž", "z", StringComparison.InvariantCulture)
+                .Replace("š", "s", StringComparison.InvariantCulture)
+                .Replace("č", "c", StringComparison.InvariantCulture);
 
             // Remove special characters
-            slug = Regex.Replace(slug, @"[^a-z\u0600-\u06FF0-9-/ ]", "").Replace("--", "-");
+            slug = Regex.Replace(slug, @"[^a-z\u0600-\u06FF0-9-/ ]", "")
+                .Replace("--", "-", StringComparison.InvariantCulture);
 
             // Remove whitespaces
-            slug = Regex.Replace(slug.Replace("-", " "), @"\s+", " ").Replace(" ", "-");
+            slug = Regex.Replace(slug.Replace("-", " ", StringComparison.InvariantCulture), @"\s+", " ")
+                .Replace(" ", "-", StringComparison.InvariantCulture);
 
             // Remove slashes
-            slug = slug.Replace("/", "-");
+            slug = slug.Replace("/", "-", StringComparison.InvariantCulture);
 
             // Remove multiple dashes
             slug = Regex.Replace(slug, @"[-]+", "-");
 
             // Remove leading & trailing dashes
-            if (slug.EndsWith("-"))
-                slug = slug.Substring(0, slug.LastIndexOf("-"));
-            if (slug.StartsWith("-"))
-                slug = slug.Substring(Math.Min(slug.IndexOf("-") + 1, slug.Length));
+            if (slug.EndsWith("-", StringComparison.InvariantCulture))
+            {
+                slug = slug[..slug.LastIndexOf("-", StringComparison.InvariantCulture)];
+            }
+            if (slug.StartsWith("-", StringComparison.InvariantCulture))
+            {
+                slug = slug[Math.Min(slug.IndexOf("-", StringComparison.InvariantCulture) + 1, slug.Length)..];
+            }
             return slug;
         }
     }

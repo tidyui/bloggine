@@ -16,7 +16,7 @@ namespace Bloggine.Models
     /// <summary>
     /// The post model used in lists and archives.
     /// </summary>
-    public class PostInfo
+    public record PostInfo
     {
         /// <summary>
         /// Get/set the title.
@@ -46,7 +46,7 @@ namespace Bloggine.Models
         /// <summary>
         /// Gets/sets the available tags.
         /// </summary>
-        public List<string> Tags { get; set; } = new List<string>();
+        public IList<string> Tags { get; internal set; } = new List<string>();
 
         /// <summary>
         /// Gets/sets the published date.

@@ -16,7 +16,7 @@ namespace Bloggine.Models
     /// <summary>
     /// Result from a paged query.
     /// </summary>
-    public sealed class PagedResult : IEnumerable<PostInfo>
+    public sealed record PagedResult : IEnumerable<PostInfo>
     {
         /// <summary>
         /// Gets/sets the zero-based index of the current page.
@@ -61,6 +61,9 @@ namespace Bloggine.Models
             return ((IEnumerable<PostInfo>)Posts).GetEnumerator();
         }
 
+        /// <summary>
+        /// Gets the enumerator for the result.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

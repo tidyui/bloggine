@@ -13,7 +13,7 @@ namespace Bloggine.Models
     /// <summary>
     /// Categories and tags are represented as taxonomies.
     /// </summary>
-    public sealed class Taxonomy
+    public sealed record Taxonomy
     {
         /// <summary>
         /// Gets/sets the title.

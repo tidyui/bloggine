@@ -14,7 +14,7 @@ namespace Bloggine.Models
     /// Settings that can be applied to posts using
     /// YAML headers.
     /// </summary>
-    public sealed class PostSettings
+    public sealed record PostSettings
     {
         /// <summary>
         /// Gets/sets the optional meta keywords.

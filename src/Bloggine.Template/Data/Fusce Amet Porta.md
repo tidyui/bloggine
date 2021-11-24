@@ -3,6 +3,7 @@ Category: Getting started
 Tags: [Purus]
 PrimaryImage: uploads/cute-business-kids-working-on-project-together-surfing-3874121.jpg
 Excerpt: Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit sit amet non magna.
+IsPinned: true
 Author:
   Name: Håkan Edling
   Image: uploads/tidyui.jpg
