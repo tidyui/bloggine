@@ -34,7 +34,7 @@ namespace Bloggine
         /// <summary>
         /// Gets/sets the page size for paged queries. The default value is 5.
         /// </summary>
-        public int PageSize { get; set; } = 2;
+        public int PageSize { get; set; } = 5;
 
         /// <summary>
         /// Gets/sets the selected theme.

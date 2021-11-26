@@ -13,6 +13,7 @@ using Bloggine.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: CLSCompliant(false)]
@@ -55,11 +56,21 @@ namespace Bloggine
             // Add services
             builder.Services.Configure<BlogOptions>(o => 
             {
+                // Bind from code for local development settings
                 options?.Invoke(o);
+
+                // Bind from configuration
+                var section = builder.Configuration.GetSection("Bloggine");
+                if (section != null)
+                {
+                    section.Bind(o);
+                }
                 _options = o;
             });
-            builder.Services.AddSingleton<IBlogService, BlogService>();
-            builder.Services.AddTransient<IStartupFilter, BlogStartup>();
+            builder.Services
+                .AddSingleton<BlogService, BlogService>()
+                .AddSingleton<IBlogService, BlogService>()
+                .AddTransient<IStartupFilter, BlogStartup>();
 
             // Add frameworks
             var mvcBuilder = builder.Services.AddRazorPages();

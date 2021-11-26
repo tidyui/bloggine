@@ -42,29 +42,6 @@ namespace Bloggine.Services
         IEnumerable<Taxonomy> Tags { get; }
 
         /// <summary>
-        /// Initializes the content structure from disc.
-        /// </summary>
-        void Init();
-
-        /// <summary>
-        /// Initializes the file system watcher.
-        /// </summary>
-        /// <param name="contentRootPath">The content root path of the application</param>
-        void InitFilewatcher(string contentRootPath);
-
-        /// <summary>
-        /// Reloads the post with the given path.
-        /// </summary>
-        /// <param name="path">The full path</param>
-        void Reload(string path);
-
-        /// <summary>
-        /// Deletes the post with the given path.
-        /// </summary>
-        /// <param name="path">The full path</param>
-        void Delete(string path);
-
-        /// <summary>
         /// Checks if an item exists with the given slug.
         /// </summary>
         /// <param name="slug">The requested slug</param>
