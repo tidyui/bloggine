@@ -35,6 +35,17 @@ namespace Bloggine
         /// <returns>The web application</returns>
         public static WebApplication Create(string[] args, Action<BlogOptions> options = null)
         {
+            return CreateBuilder(args, options).Build();
+        }
+
+        /// <summary>
+        /// Creates a new blog web application builder.
+        /// </summary>
+        /// <param name="args">The application arguments</param>
+        /// <param name="options">The optional blog options</param>
+        /// <returns>The web application</returns>
+        public static WebApplicationBuilder CreateBuilder(string[] args, Action<BlogOptions> options = null)
+        {
             var builder = WebApplication.CreateBuilder(args);
 
             // Configure services
@@ -42,8 +53,8 @@ namespace Bloggine
 
             Environment = builder.Environment;
 
-            // Build app 
-            return builder.Build();
+            // Build builder 
+            return builder;
         }
 
         /// <summary>
