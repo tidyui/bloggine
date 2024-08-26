@@ -8,8 +8,6 @@
  *
  */
 
-using System;
-using System.IO;
 using Bloggine.Http;
 using Bloggine.Services;
 using Microsoft.AspNetCore.Builder;

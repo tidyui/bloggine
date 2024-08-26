@@ -8,9 +8,6 @@
  *
  */
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -21,22 +18,13 @@ namespace Bloggine.Http
     /// <summary>
     /// Middleware for routing requests.
     /// </summary>
-    internal sealed class BlogMiddleware
+    /// <remarks>
+    /// Default constructor.
+    /// </remarks>
+    /// <param name="next">The next middleware component in the pipeline</param>
+    /// <param name="logger">The optional logger</param>
+    internal sealed class BlogMiddleware(RequestDelegate next, ILogger<BlogMiddleware> logger = null)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<BlogMiddleware> _logger;
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        /// <param name="next">The next middleware component in the pipeline</param>
-        /// <param name="logger">The optional logger</param>
-        public BlogMiddleware(RequestDelegate next, ILogger<BlogMiddleware> logger = null)
-        {
-            _next = next;
-            _logger = logger;
-        }
-
         /// <summary>
         /// Invokes the middleware.
         /// </summary>
@@ -48,14 +36,8 @@ namespace Bloggine.Http
         public async Task InvokeAsync(HttpContext context, IBlogService blog)
         {
             // Validate input params
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-            if (blog == null)
-            {
-                throw new ArgumentNullException(nameof(blog));
-            }
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(blog);
 
             // Check if we have a requested url
             if (context.Request.Path.HasValue)
@@ -69,19 +51,19 @@ namespace Bloggine.Http
 
                     if (post != null)
                     {
-                        _logger?.LogInformation($"Rewriting [/{ url }] to [/post/{ url }]");
+                        logger?.LogInformation($"Rewriting [/{ url }] to [/post/{ url }]");
                         context.Request.Path = new PathString($"/post/{ url }");
 
                         if (post.Settings.IsCached)
                         {
-                            _logger?.LogDebug($"Checking cache headers for [{ url }]");
+                            logger?.LogDebug($"Checking cache headers for [{ url }]");
 
                             // Check for browser cache
                             var reqHeaders = context.Request.GetTypedHeaders();
                             if (reqHeaders.IfNoneMatch.Any(h => h.Tag == post.Settings.ETag))
                             {
                                 // Correct version is cached, return Not Modified
-                                _logger?.LogInformation($"ETag [{ post.Settings.ETag }]. Returning Not Modified");
+                                logger?.LogInformation($"ETag [{ post.Settings.ETag }]. Returning Not Modified");
                                 context.Response.StatusCode = 304;
                                 return;
                             }
@@ -99,14 +81,15 @@ namespace Bloggine.Http
                     }
                     else
                     {
-                        _logger?.LogDebug($"Passing through request to [{ context.Request.Path.Value }]");
+                        logger?.LogDebug($"Passing through request to [{ context.Request.Path.Value }]");
                     }
-                } else
-            {
-                    _logger?.LogDebug($"Passing through request to [{ context.Request.Path.Value }]");
+                }
+                else
+                {
+                    logger?.LogDebug($"Passing through request to [{ context.Request.Path.Value }]");
                 }
             }
-            await _next(context).ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
     }
 }

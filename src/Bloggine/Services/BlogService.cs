@@ -8,13 +8,8 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Bloggine.Models;
 using Markdig;
 using Microsoft.Extensions.Logging;
@@ -169,7 +164,7 @@ namespace Bloggine.Services
                     _logger?.LogError($"Filewatcher.Deleted { e.Name }: { ex.Message }");
                 }
             };
-            _watcher.Renamed += (source, e) => 
+            _watcher.Renamed += (source, e) =>
             {
                 try
                 {

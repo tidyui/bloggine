@@ -8,9 +8,6 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-
 namespace Bloggine.Models
 {
     /// <summary>

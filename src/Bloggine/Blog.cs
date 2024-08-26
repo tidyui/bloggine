@@ -8,7 +8,6 @@
  *
  */
 
-using System;
 using Bloggine.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,7 +15,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-[assembly: CLSCompliant(false)]
 namespace Bloggine
 {
     /// <summary>
@@ -53,7 +51,7 @@ namespace Bloggine
 
             Environment = builder.Environment;
 
-            // Build builder 
+            // Build builder
             return builder;
         }
 
@@ -65,7 +63,7 @@ namespace Bloggine
         private static void ConfigureServices(WebApplicationBuilder builder, Action<BlogOptions> options)
         {
             // Add services
-            builder.Services.Configure<BlogOptions>(o => 
+            builder.Services.Configure<BlogOptions>(o =>
             {
                 // Bind from code for local development settings
                 options?.Invoke(o);
