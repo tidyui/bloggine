@@ -1,0 +1,27 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package information">
+    <Version>1.0.0-alpha4</Version>
+    <Authors>Håkan Edling</Authors>
+    <Copyright>Copyright (c) Håkan Edling</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>blog markdown razorpages aspnetcore</PackageTags>
+    <PackageProjectUrl>https://github.com/tidyui/bloggine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tidyui/bloggine</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <NoWarn>CA1308;CA1812;CA1848;CA2254</NoWarn>
+  </PropertyGroup>
+
+</Project>
